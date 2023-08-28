@@ -1,0 +1,17 @@
+{
+  "individual": {
+    "individualId": 34,
+    "firstName": "Maryellen",
+    "middleName": null,
+    "lastName": "Suermeiers",
+    "age": 51
+  },
+  "address": {
+    "addressId": 34,
+    "houseNumber": 1120,
+    "buildingName": "Premier Pro",
+    "streetName": "LBS Marg",
+    "city": "Mumbai",
+    "country": "India"
+  }
+}
