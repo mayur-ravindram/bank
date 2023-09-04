@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.subcon.dto.Customer;
 import org.subcon.external.proxy.DatabaseProxy;
+import org.subcon.model.AccountStatus;
 import org.subcon.model.Address;
 import org.subcon.model.Individual;
 
 import java.util.List;
+
+import static org.subcon.util.CommonUtilities.getAccountStatus;
 
 @Service
 public class DatabaseServiceImpl implements DatabaseService {
@@ -24,13 +27,12 @@ public class DatabaseServiceImpl implements DatabaseService {
         Individual individualResponseEntity = this.proxy.recordIndividual(customer.getIndividual());
         Address addressResponseEntity = this.proxy.recordAddress(customer.getAddress());
 
-        org.subcon.model.Customer addedCustomer = formCustomerResponse(individualResponseEntity, addressResponseEntity);
-
-        return addedCustomer;
+        return formCustomerResponse(individualResponseEntity, addressResponseEntity);
     }
 
     private org.subcon.model.Customer formCustomerResponse(Individual individual, Address address) {
-        return new org.subcon.model.Customer(individual, address);
+        AccountStatus accountStatus = getAccountStatus(individual);
+        return new org.subcon.model.Customer(individual, address, accountStatus);
     }
 
     @Override

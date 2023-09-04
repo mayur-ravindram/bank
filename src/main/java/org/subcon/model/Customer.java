@@ -12,4 +12,5 @@ import lombok.Setter;
 public class Customer {
     private Individual individual;
     private Address address;
+    private AccountStatus accountStatus;
 }

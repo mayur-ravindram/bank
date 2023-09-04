@@ -9,10 +9,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.subcon.dto.Address;
 import org.subcon.dto.Individual;
+import org.subcon.model.AccountStatus;
 import org.subcon.model.Customer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static org.subcon.util.CommonUtilities.getAccountStatus;
 
 @Component
 public class DatabaseProxy {
@@ -29,21 +33,19 @@ public class DatabaseProxy {
     }
 
     public org.subcon.model.Address recordAddress(Address address) {
-        org.subcon.model.Address response = this.databaseClient.postForObject(
+        return this.databaseClient.postForObject(
                 DATABASE_URL.concat("/record-address"),
                 address,
                 org.subcon.model.Address.class);
 
-        return response;
     }
 
     public org.subcon.model.Individual recordIndividual(Individual individual) {
-        org.subcon.model.Individual response = this.databaseClient.postForObject(
+        return this.databaseClient.postForObject(
                 DATABASE_URL.concat("/record-individual"),
                 individual,
                 org.subcon.model.Individual.class);
 
-        return response;
     }
 
     public List<Customer> getCustomer() {
@@ -56,10 +58,10 @@ public class DatabaseProxy {
 
         List<Customer> customers = new ArrayList<>();
 
-        for (org.subcon.model.Address address: addressResponseEntity) {
-            for(org.subcon.model.Individual individual: individualResponseEntity) {
-                if(address.getAddressId()== individual.getIndividualId()) {
-                    customers.add(new Customer(individual, address));
+        for (org.subcon.model.Address address : Objects.requireNonNull(addressResponseEntity)) {
+            for (org.subcon.model.Individual individual : Objects.requireNonNull(individualResponseEntity)) {
+                if (address.getAddressId() == individual.getIndividualId()) {
+                    customers.add(new Customer(individual, address, getAccountStatus(individual)));
                 }
             }
         }
@@ -79,9 +81,9 @@ public class DatabaseProxy {
 
     public String deleteCustomer(String customerId) {
 
-        try{
-            this.databaseClient.delete(DATABASE_URL.concat("/delete-address/"+customerId));
-            this.databaseClient.delete(DATABASE_URL.concat("/delete-individual/"+customerId));
+        try {
+            this.databaseClient.delete(DATABASE_URL.concat("/delete-address/" + customerId));
+            this.databaseClient.delete(DATABASE_URL.concat("/delete-individual/" + customerId));
         } catch (Exception e) {
             return null;
         }
