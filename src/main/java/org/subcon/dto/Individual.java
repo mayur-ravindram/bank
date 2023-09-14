@@ -1,5 +1,6 @@
 package org.subcon.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,4 +20,6 @@ public class Individual {
 
     @NotNull(message = "age should not be null")
     private int age;
+
+    private int addressId;
 }

@@ -1,5 +1,6 @@
 package org.subcon.external.proxy;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -9,16 +10,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.subcon.dto.Address;
 import org.subcon.dto.Individual;
+import org.subcon.model.Account;
 import org.subcon.model.AccountStatus;
 import org.subcon.model.Customer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static org.subcon.util.CommonUtilities.getAccountStatus;
+import java.util.Random;
 
 @Component
+@Log4j2
 public class DatabaseProxy {
 
     @Value("${db.endpoint}")
@@ -41,6 +43,7 @@ public class DatabaseProxy {
     }
 
     public org.subcon.model.Individual recordIndividual(Individual individual) {
+        if(individual.getAge() < 18 || individual.getAge() > 59) individual.setAge(new Random().nextInt(18, 59));
         return this.databaseClient.postForObject(
                 DATABASE_URL.concat("/record-individual"),
                 individual,
@@ -61,7 +64,17 @@ public class DatabaseProxy {
         for (org.subcon.model.Address address : Objects.requireNonNull(addressResponseEntity)) {
             for (org.subcon.model.Individual individual : Objects.requireNonNull(individualResponseEntity)) {
                 if (address.getAddressId() == individual.getIndividualId()) {
-                    customers.add(new Customer(individual, address, getAccountStatus(individual)));
+                    Account account = new Account();
+                    final Customer customer;
+                    int individualId = individual.getIndividualId();
+                    account.setIndividualId(individualId);
+                    String accountUrl = DATABASE_URL.concat("/get-account/") + individualId;
+                    Account accountResponseEntity = this.databaseClient.getForObject(
+                            accountUrl,
+                            Account.class);
+                    AccountStatus accountOpeningStatus = Objects.requireNonNull(accountResponseEntity).getAccountOpeningStatus();
+                    customer = new Customer(individual, address, accountOpeningStatus);
+                    customers.add(customer);
                 }
             }
         }
@@ -88,5 +101,15 @@ public class DatabaseProxy {
             return null;
         }
         return "200";
+    }
+
+    public Account createAccount(int individualId, int addressId) {
+        Account newAccount = new Account();
+        newAccount.setIndividualId(individualId);
+        newAccount.setAddressId(addressId);
+        return this.databaseClient.postForObject(
+                DATABASE_URL.concat("/open-account"),
+                newAccount,
+                org.subcon.model.Account.class);
     }
 }

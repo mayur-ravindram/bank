@@ -23,4 +23,7 @@ public class Individual {
 
     @JsonProperty("age")
     private int age;
+
+    @JsonProperty("address_id")
+    private int addressId;
 }
