@@ -3,14 +3,18 @@ package org.subcon.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
 public class Customer {
-    @NotNull(message = "Individual is mandatory")
+
+    @Valid
+    @NotNull(message = "individual should not be empty")
     private Individual individual;
 
-    @NotNull(message = "Address is mandatory")
+    @Valid
+    @NotNull(message = "address should not be empty")
     private Address address;
 }

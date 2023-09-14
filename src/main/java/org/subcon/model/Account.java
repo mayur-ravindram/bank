@@ -9,8 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
-    private Individual individual;
-    private Address address;
-    private AccountStatus accountStatus;
+public class Account {
+    private int accountId;
+
+    private int individualId;
+    private int addressId;
+
+    private AccountStatus accountOpeningStatus;
 }

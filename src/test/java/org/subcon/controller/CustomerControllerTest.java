@@ -1,6 +1,5 @@
 package org.subcon.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,8 +70,8 @@ class CustomerControllerTest {
                         .content(objectMapper.writeValueAsString(customer)))
                 .andExpect(status().isBadRequest())
                 .andDo(print())
-                .andExpect(jsonPath("$.errorMessage").value("Address is mandatory"))
-                .andExpect(jsonPath("$.errorCode").value("NotNull"));
+                .andExpect(jsonPath("$[0].errorMessage").value("address should not be empty"))
+                .andExpect(jsonPath("$[0].errorCode").value("NotNull"));
     }
 
     @Test
@@ -86,8 +85,8 @@ class CustomerControllerTest {
                         .content(objectMapper.writeValueAsString(customer)))
                 .andExpect(status().isBadRequest())
                 .andDo(print())
-                .andExpect(jsonPath("$.errorMessage").value("Individual is mandatory"))
-                .andExpect(jsonPath("$.errorCode").value("NotNull"));
+                .andExpect(jsonPath("$[0].errorMessage").value("individual should not be empty"))
+                .andExpect(jsonPath("$[0].errorCode").value("NotNull"));
     }
 
     @Test

@@ -9,11 +9,13 @@ import org.subcon.dto.Customer;
 import org.subcon.service.CustomerService;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -27,7 +29,7 @@ public class CustomerController {
     ResponseEntity<org.subcon.model.Customer> recordNewCustomer(@Valid @RequestBody Customer customerData) {
         org.subcon.model.Customer recordedCustomer = customerService.recordCustomer(customerData);
 
-        return new ResponseEntity(recordedCustomer, HttpStatus.CREATED);
+        return new ResponseEntity<>(recordedCustomer, HttpStatus.CREATED);
     }
 
     @GetMapping("/get-customers")
@@ -53,13 +55,17 @@ public class CustomerController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
+    public List<Map<String,String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            errors.put("errorCode", error.getCode());
-            errors.put("errorMessage", error.getDefaultMessage());
+        List<Map<String,String>> errorList = new ArrayList<>();
+
+        ex.getBindingResult().getFieldErrors().forEach((error) -> {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("errorCode", error.getCode());
+            errorMap.put("errorMessage", error.getDefaultMessage());
+            errorMap.put("field", error.getField());
+            errorList.add(errorMap);
         });
-        return errors;
+        return errorList;
     }
 }
